@@ -1,0 +1,19 @@
+IndexIgnore .htaccess
+AddDefaultCharset UTF-8
+defaultLanguage en-US
+SetEnv TZ Europe/Bucharest
+AddType application/octet-stream .avi .mpg .mov .pdf .xls .mp4
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	#RewriteCond %{HTTP_HOST} ^viralpatel\.net$
+	#RewriteRule (.*) http://www.viralpatel.net/$1 [R=301,L]
+	RewriteRule ^(.*)$ /index.php?/$1 [L]
+</IfModule>
+<ifModule mod_header.c>
+<FilesMatch "\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$">
+ExpiresDefault A29030400
+Header append Cache-Control "public"
+</FilesMatch>
+</IfModule> 
