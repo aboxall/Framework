@@ -51,6 +51,14 @@ class Html
 	{
 	}
 	
+	/**
+	 * 
+	 * @param (string) $data
+	 * @param (string) $type
+	 * @param (int) $width
+	 * @param (int) $height
+	 * @param (string) $name
+	 */
 	public static function flash($data, $type, $width, $height, $name)
 	{
 		$data = '<object
@@ -63,10 +71,27 @@ class Html
 ';
 	}
 	
+	/**
+	 * 
+	 */
 	public static function addCss()
-	{
+	{$x = '';
 		$_config = IniConfig::getInstance();
-		$_config->printAll();
-		$cssFile = $_config->get('css');
+		$controller = $_config->get('uriParsed.controller') . 'Controller';
+		$defaultCssFiles = $_config->get('css.default');	
+		$cssFile = $_config->get('css.'. $controller);
+		foreach($defaultCssFiles as $cssKeyDefault)
+		{
+		    $cssKeyDefault = explode('|', $cssKeyDefault);
+			echo '<link rel="stylesheet" href="public/css/'. $cssKeyDefault[1] .'.css" type="text/css" media="'. $cssKeyDefault[0] .'" />
+';
+		}
+		
+		foreach($cssFile as $cssKeyFile)
+		{
+		    $cssKeyFile = explode('|', $cssKeyFile);
+		    echo '<link rel="stylesheet" href="public/css/'. $cssKeyFile[1] .'" type="text/css" media="'. $cssKeyFile[0] .'" />
+';
+		}
 	}
 }

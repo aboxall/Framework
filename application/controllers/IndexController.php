@@ -1,19 +1,34 @@
 <?php
-class IndexController
-{	
-	public $view;
+class IndexController extends Controller
+{
+	public
+		$table,
+		$values;
+
+	public function isndex()
+	{
+		
+	}
+
+	/**
+	 * 
+	 * @param unknown_type $table
+	 * @param unknown_type $values
+	 */
 	public function index()
 	{
-		$this->config = IniConfig::getInstance();
-		$this->view = View::getInstance();
-		$this->config->parseIniFile('css.ini', false);
-		$this->view->setStructure('index');
-		$this->view->assign('sex', 'sss');
-		$this->view->add('index');
+    	$insert = array(
+            'post' => array(
+                array('null',  '1',  'My First Title',  'My First Text'),
+            ),
+        );
+        $indexModel = new IndexModel();
+        $indexModel->insertPost($insert);
 	}
 	
-	public function hello()
+	public function implodeValues($array)
 	{
-		echo "Hello World From: " . __METHOD__;
+		return '(:' . implode(', :', $array) . ')';
+
 	}
 }

@@ -9,7 +9,8 @@ class View
 	protected
 		$viewPath,
 		$structure,
-		$_config;
+		$_config,
+		$structurePath;
 		
 	public static function getInstance()
 	{
@@ -26,11 +27,20 @@ class View
 		$this->_viewPath = APPLICATION_PATH . $this->_config->get('application.viewPath');
 	}
 	
-	public function setStructure($structure)
+	public function setStructure($structure, $structurePath = NULL)
 	{
-		(string)$this->_filename = $this->_viewPath . '/' . $structure;
-		if(file_exists($this->_filename))
-			$this->structure = $this->_filename;
+		if(empty($structurePath))
+		{
+			(string)$this->_filename = $this->_viewPath . '/' . $structure;
+			if(file_exists($this->_filename))
+				$this->structure = $this->_filename;
+		}
+		else
+		{
+			(string)$this->_filename = $structurePath . '/';
+			if(file_exists($this->_filename))
+				$this->structure = $this->_filename;
+		}
 	}
 	
 	public function assign($var_name, $var_val)
@@ -38,10 +48,10 @@ class View
 		(array)$this->vars[$var_name] = $var_val;
 	}
 	
-	public function add($view, $auto_output = FALSE)
+	public function add($view)
 	{
 		$this->views[] = $view;
-		if($auto_output == true || (string)$this->_config->get('application.ViewOutput') == 'true')
+		if((string)$this->_config->get('application.ViewOutput') == 'true')
 			$this->output();
 	}
 	

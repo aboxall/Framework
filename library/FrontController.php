@@ -1,6 +1,7 @@
 <?php
 require 'IniConfig.php';
 require 'Autoloader.php';
+require 'ArrayHandler.php';
 class FrontController
 {
 	private static
@@ -24,9 +25,8 @@ class FrontController
 	{
 		$this->_config = IniConfig::getInstance();
 		$this->_config->parseIniFile('application.ini', false);
-		$this->_config->parseIniFile('routes.ini', false);
+		$this->_config->parseIniFile('css.ini', false);		
 		spl_autoload_register(array(AutoLoader::getInstance(), 'autoLoader'));
 		StandardRouter::route();
-		View::getInstance();
 	}
 }

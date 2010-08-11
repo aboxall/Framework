@@ -22,6 +22,8 @@ class StandardRouter
 		
 		// Let's check our configuration for what type of parsing we use
 		$_config = IniConfig::getInstance();
+		// Let's parse our config file
+		$_config->parseIniFile('routes.ini', false);
 		if((string)$_config->get('routes.standardRouting') == 'TRUE')
 		{
 			if((string)$_config->get('routes.standardRoutingType') == 'REQUEST_URI')
@@ -33,9 +35,6 @@ class StandardRouter
 				
 				$_requested_array = explode('/', $uriString);
 				$_config->set('uriSegment', $_requested_array);
-				
-				// Let's check your routing pattern
-				$_config->parseIniFile('routing.ini', false);
 				
 				// Prepare an array with the pattern
 				$routes_pattern = explode('/', $_config->get('routes.urlMap'));
@@ -67,38 +66,65 @@ class StandardRouter
 				// Let's setup your controller if empty.	
 				if(empty($_controller))
 					$_controller = $_config->get('routes.controllerDefault');
+				$_config->set('uriParsed.controller', $_controller);
+				// Let's setup your action if empty
 				if(empty($_action))
-					$_action = $_config->get('routes.actionDefault');
-					
-				if(isset($_params))
-					self::dispatchRoute($_controller, $_action, $_params);
-				else
+					$_action = $_config->get('routes.actionDefault');				
+				$_config->set('uriParsed.action', $_action);
+				// Let's deploy our dispatch
+				if(!isset($_params))
 					self::dispatchRoute($_controller, $_action);
+				else
+				{
+					$_config->set('uriParsed.params', $_params);
+					self::dispatchRoute($_controller, $_action, $_params);
+				}	
 			}
 			else
 			if((string)$_config->get('routes.standardRoutingType') == 'QUERY_STRING')
 			{
 				if($uriHandler->queryString())
 				{
-					$x = $_SERVER['QUERY_STRING'];
-					$x = explode('&', $x);
-					print_r($x);
-					$ex = preg_replace('/controller=/', '', $x['0']);
-				}
-				else
-				{
-					echo "No QUERY_STRING found";
-				}
-			}
-			if((string)$_config->get('routes.standardRoutingType') == 'PATH_INFO')
-			{
-				if($uriHandler->getPathInfo())
-				{
-					$pathInfo = explode('/', $_SERVER['PATH_INFO']);
-				}
-				else
-				{
-					echo "No PATH_INFO found";
+					// Let's get our QUERY_STRING
+					$queryString = $_SERVER['QUERY_STRING'];
+					// Let's prepare to parse it
+					$queryString = explode('&', $queryString);
+					// Let's get our routes pattern
+					$routes_pattern = explode('/', $_config->get('routes.urlMap'));
+					// Let's parse and see what we get.
+					foreach($routes_pattern as $keyRoutePattern => $routePatternValue)
+					{
+						// Let's check where the controller position is.
+						if(preg_match('/controller/', $routePatternValue))
+						{
+							// Let's setup the controller
+							if(isset($queryString[$keyRoutePattern]))
+							{
+								$_controller = $queryString[$keyRoutePattern];
+								unset($queryString[$keyRoutePattern]);
+								$_controller = preg_replace('/c=/', '', $_controller);
+							}
+						}
+						// Let's check where the action position is.
+						if(preg_match('/action/', $routePatternValue))
+						{
+							// Let's setup the action
+							if(isset($queryString[$keyRoutePattern]))
+							{
+								$_action = $queryString[$keyRoutePattern];
+								unset($queryString[$keyRoutePattern]);
+								$_action = preg_replace('/a=/', '', $_action);
+							}
+						}
+					}
+					// Let's setup your controller if empty.	
+					if(empty($_controller))
+						$_controller = $_config->get('routes.controllerDefault');
+					// Let's setup your action if empty
+					if(empty($_action))
+						$_action = $_config->get('routes.actionDefault');
+					// Let's deploy our dispatch
+					self::dispatchRoute($_controller, $_action);
 				}
 			}
 		}
@@ -114,7 +140,7 @@ class StandardRouter
 		
 		if(method_exists($_controller, $_action))
 			if(!empty($_params))
-				call_user_func(array($_controller, $_action), $_params);
+				call_user_func_array(array($_controller, $_action), $_params);
 			else
 				call_user_func(array($_controller, $_action));
 		else

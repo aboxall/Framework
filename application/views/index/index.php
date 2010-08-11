@@ -1,4 +1,4 @@
 <?php
 require APPLICATION_PATH . 'views/global/header.php';
-echo "<br />Hello World From: " . __FILE__ ;
+echo "Hello World From: " . __FILE__ ;
 ?>

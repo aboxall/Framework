@@ -23,47 +23,39 @@ class AutoLoader
 
     private function __construct() 
     {
-        $this->_paths = explode(PATH_SEPARATOR, get_include_path());
+        $directoryIteratorController = new DirectoryIterator(APPLICATION_PATH . 'controllers');
+        foreach($directoryIteratorController as $directoryIteratorControllers)
+        {
+			if($directoryIteratorControllers->isDir())
+				set_include_path(get_include_path() . PATH_SEPARATOR . $directoryIteratorControllers->getPathInfo() . '/');
+				
+		}
+		
+		$this->_paths = explode(PATH_SEPARATOR, get_include_path());
     }
     
     public function autoLoader($className) 
-    { 
-        $this->loadFile($className);
-        try
-        { 
-            if(!class_exists($className, false)) 
-            { 
-                throw new AutoloaderExceptions("Class: " . $className . " Is not Defined"); 
-            }
-        }
-        catch(AutoLoadException $e)
-        {
-            echo $e->getMessage();
-            exit();
-        } 
-    } 
-    
-    protected function loadFile($className) 
     {
-        if(preg_match('/_/', $className))
-        {
-			$className = str_replace('_', DIRECTORY_SEPARATOR, $className . '.php');
-			if(file_exists($className))
-				require $className;
-		}
-		else
+		$fileName = $className . '.php';
+		try
 		{
-			foreach($this->_paths as $this->_path) 
-			{ 
-				//echo $this->_path . '<br />';
-				$this->_path = $this->_path . $className . '.php';  
-
-				if(file_exists($this->_path)) 
-				{ 
-					require $this->_path; 
-					break; 
-				} 
-			} 
+			foreach($this->_paths as $filePath)
+			{
+				if(is_file($filePath . $fileName))
+				{
+					require_once $fileName;
+					
+					return true;
+				}
+			}
+			if(!class_exists($fileName, false))
+				throw new AutoloaderExceptions("Class $fileName Missing In $fileName	");
+		}
+		catch(AutoloaderExceptions $e)
+		{
+			header("HTTP/1.0 500 Internal Server Error");
+			$e->loadErrorPage('500');
+			exit;
 		}
     } 
 }
