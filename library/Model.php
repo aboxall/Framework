@@ -1,8 +1,16 @@
 <?php
 class Model extends PDO
 {
-    protected $_config;
-    private $connectionDetails, $dsn, $username, $password, $table, $values;
+    protected 
+        $_config;
+    private 
+        $connectionDetails, 
+        $dsn, 
+        $username, 
+        $password, 
+        $table, 
+        $values;
+    
     public function __construct ()
     {
         try {
@@ -29,14 +37,9 @@ class Model extends PDO
             $this->password = $this->connectionDetails[$this->connectionName .
              '.password'];
             // Let's try and connec to to database.
-            parent::__construct(
-            $this->dsn, 
-            $this->username, 
-            $this->password);
+            parent::__construct($this->dsn, $this->username, $this->password);
             // Let's setup some error modes
-            parent::setAttribute(
-            PDO::ATTR_ERRMODE, 
-            PDO::ERRMODE_EXCEPTION);
+            parent::setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -47,8 +50,7 @@ class Model extends PDO
         "SELECT * FROM `$table` WHERE `$fieldname` = :id");
         $this->stmt->bindParam(':id', $id);
         $this->stmt->execute();
-        return $this->stmp->fetchAll(
-        PDO::FETCH_ASSOC);
+        return $this->stmp->fetchAll(PDO::FETCH_ASSOC);
     }
     public function Update ($table, $fieldname, $value, $field, 
     $id)
@@ -71,7 +73,7 @@ class Model extends PDO
             // start building up SQL
             $sql = "INSERT INTO `$table` ";
             // check if field names were passed
-            if ($this->is_assoc_array(
+            if (is_assoc_array(
             $data[0])) {
                 // add field names to SQL
                 $sql .= "(" .

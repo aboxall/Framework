@@ -39,8 +39,40 @@ class Html
 		return $image;
 	}
 	
-	public static function anchor()
+	public static function anchor($link, $text, $title, $extras)
 	{
+	    $domain = self::domain();
+    	$link = $domain . $link;
+    	$data = '<a href="' . $link . '"';
+    
+    	if ($title)
+    	{
+    		$data .= ' title="' . $title . '"';
+    	}
+    	else
+    	{
+    		$data .= ' title="' . $text . '"';
+    	}
+    
+    	if (is_array($extras))//2
+    	{
+    		foreach($extras as $rule)//3
+    		{
+    			$data .= self::parse_extras($rule);//4
+    		}
+    	}
+    
+    	if (is_string($extras))//5
+    	{
+    		$data .= self::parse_extras($extras);//6
+    	}
+    
+    	$data.= '>';
+    
+    	$data .= $text;
+    	$data .= "</a>";
+    
+    	return $data;
 	}
 	
 	public static function link()
@@ -71,11 +103,8 @@ class Html
 ';
 	}
 	
-	/**
-	 * 
-	 */
 	public static function addCss()
-	{$x = '';
+	{
 		$_config = IniConfig::getInstance();
 		$controller = $_config->get('uriParsed.controller') . 'Controller';
 		$defaultCssFiles = $_config->get('css.default');	
@@ -94,4 +123,30 @@ class Html
 ';
 		}
 	}
+	
+    public static function parse_extras($rule)
+    {
+    	if ($rule[0] == "#") //1
+    	{
+    		$id = substr($rule,1,strlen($rule)); //2
+    		$data = ' id="' . $id . '"'; //3
+    		
+    		return $data;
+    	}
+    
+    	if ($rule[0] == ".") //4
+    	{
+    		$class = substr($rule,1,strlen($rule));
+    		$data = ' class="' . $class . '"';
+    		
+    		return $data;
+    	}
+    
+    	if ($rule[0] == "_") //5
+    	{
+    		$data = ' target="' . $rule . '"';
+    		
+    		return $data;
+    	}
+    }
 }
